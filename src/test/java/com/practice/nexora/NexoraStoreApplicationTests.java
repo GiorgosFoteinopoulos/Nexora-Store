@@ -1,4 +1,4 @@
-package com.practice.nexora_store;
+package com.practice.nexora;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
