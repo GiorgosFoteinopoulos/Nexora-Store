@@ -1,4 +1,4 @@
-package com.practice.nexora_store;
+package com.practice.nexora;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
