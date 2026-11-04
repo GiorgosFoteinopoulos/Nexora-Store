@@ -1,6 +1,7 @@
 package com.practice.nexora.catalog;
 
 import com.practice.nexora.common.Money;
+import static com.practice.nexora.common.Text.requireText;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -93,14 +94,6 @@ public class ProductVariant {
         return "ProductVariant[%s, %s, %s, stock=%d]".formatted(sku, colour, price.amount(), stock);
     }
 
-    private static String requireText(String value, String field) {
-        Objects.requireNonNull(value, field + " must not be null");
-        String stripped = value.strip();
-        if (stripped.isEmpty()) {
-            throw new IllegalArgumentException(field + " must not be empty");
-        }
-        return stripped;
-    }
 
     private static void requirePositive(int quantity) {
         if (quantity <= 0) {
