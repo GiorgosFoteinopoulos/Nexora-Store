@@ -1,5 +1,8 @@
 package com.practice.nexora.catalog;
 
+import static com.practice.nexora.common.Numbers.requireBetween;
+import static com.practice.nexora.common.Numbers.requirePositive;
+
 public class Phone extends Product{
 
     private final double screenInches;
@@ -9,17 +12,12 @@ public class Phone extends Product{
     public Phone(String name, Brand brand, String description,
                  double screenInches, int batteryMah, boolean fiveG) {
         super(name, brand, description);
-        if (!(screenInches >= 3.0 && screenInches <= 8.0)) {
-            throw new IllegalArgumentException("screenInches must be between 3.0 and 8.0: " + screenInches);
-        }
-        if (batteryMah <= 0) {
-            throw new IllegalArgumentException("batteryMah must be positive: " + batteryMah);
-        }
-        this.screenInches = screenInches;
-        this.batteryMah = batteryMah;
-        this.fiveG = fiveG;
+       this.screenInches = requireBetween(screenInches, 3.0, 8.0, "screenInches");
+       this.batteryMah = requirePositive(batteryMah, "batteryMah");
+       this.fiveG = fiveG;
     }
 
+    @Override
     public Category getCategory() {
         return Category.PHONE;
     }
