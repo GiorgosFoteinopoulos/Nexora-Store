@@ -1,14 +1,26 @@
 package com.practice.nexora.catalog;
 
+import jakarta.persistence.*;
+
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Set;
 
-
+@Entity
+@Table(name = "accessories")
+@DiscriminatorValue("ACCESSORY")
 public class Accessory extends Product {
 
-    private final Set<Category> compatibleWith;
+    @ElementCollection
+    @CollectionTable(name = "accessory_categories", joinColumns = @JoinColumn(name = "accessory_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category", nullable = false, length = 20)
+    private Set<Category> compatibleWith;
+
+    protected Accessory() {
+
+    }
 
     public Accessory(String name, Brand brand, String description, Set<Category> compatibleWith) {
         super(name, brand, description);

@@ -59,4 +59,16 @@ class BrandRepositoryTest {
         assertThatThrownBy(() -> brands.saveAndFlush(new Brand("NEXORA"))) // same slug: "nexora"
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
+
+    @Test
+    void aLazyProxyEqualsTheBrandItStandsFor() {
+        Long id = brands.saveAndFlush(new Brand("Nexora")).getId();
+        entityManager.clear();
+
+        Brand proxy = entityManager.getEntityManager().getReference(Brand.class, id);
+        Brand sameBrand = new Brand("Nexora");
+
+        assertThat(proxy.getClass()).isNotEqualTo(Brand.class);
+        assertThat(sameBrand.equals(proxy)).isTrue();
+    }
 }

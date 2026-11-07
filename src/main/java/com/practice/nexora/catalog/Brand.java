@@ -55,7 +55,7 @@ public class Brand {
         if (!(o instanceof Brand other)) {
             return false;
         }
-        return slug.equals(other.slug);
+        return slug.equals(other.getSlug());
     }
 
     @Override

@@ -2,18 +2,59 @@ package com.practice.nexora.catalog;
 
 import com.practice.nexora.common.Money;
 import com.practice.nexora.common.Slug;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.DiscriminatorType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 import static com.practice.nexora.common.Text.requireText;
 
+
+@Entity
+@Table(name = "products")
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "category", discriminatorType = DiscriminatorType.STRING, length = 20)
 public abstract class Product {
 
-    private final String name;
-    private final Slug slug;
-    private final Brand brand;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 120)
+    private String name;
+
+    @Column(nullable = false, unique = true, length = 80)
+    private Slug slug;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "brand_id", nullable = false)
+    private Brand brand;
+
+    @Column(nullable = false, length = 2000)
     private String description;
+
+    @Transient
     private final List<ProductVariant> variants = new ArrayList<>();
+
+    protected Product() {
+    }
 
     protected Product(String name, Brand brand, String description) {
         this.name = requireText(name, "product name");
@@ -70,6 +111,7 @@ public abstract class Product {
         this.description = requireText(description, "description");
     }
 
+    public Long getId() { return id; }
     public String getName() {
         return name;
     }
