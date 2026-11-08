@@ -1,13 +1,23 @@
 package com.practice.nexora.catalog;
 
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+
 import static com.practice.nexora.common.Numbers.requireBetween;
 
-
+@Entity
+@Table(name = "tablets")
+@DiscriminatorValue("TABLET")
 public class Tablet extends Product {
 
-    private final double screenInches;
-    private final boolean stylusSupport;
-    private final boolean cellular;
+    private double screenInches;
+    private boolean stylusSupport;
+    private boolean cellular;
+
+    protected Tablet() {
+
+    }
 
     public Tablet(String name, Brand brand, String description,
                   double screenInches, boolean stylusSupport, boolean cellular) {

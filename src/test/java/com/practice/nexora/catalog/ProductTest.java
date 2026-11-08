@@ -179,4 +179,36 @@ class ProductTest {
             assertThat(a.hashCode()).isEqualTo(b.hashCode());
         }
     }
+
+    @Test
+    void removesAVariant() {
+        Product product = phone();
+        product.addVariant(variant("NX-PH15P-256-BLK", "1199", 3));
+        product.addVariant(variant("NX-PH15P-512-BLK", "1399", 1));
+
+        product.removeVariant(new Sku("NX-PH15P-256-BLK"));
+
+        assertThat(product.getVariants())
+                .extracting(ProductVariant::getSku)
+                .containsExactly(new Sku("NX-PH15P-512-BLK"));
+    }
+
+    @Test
+    void refusesToRemoveAnUnknownSku() {
+        assertThatThrownBy(() -> phone().removeVariant(new Sku("NX-UNKNOWN")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("NX-UNKNOWN");
+    }
+
+    @Test
+    void aVariantCannotBelongToTwoProducts() {
+        ProductVariant shared = variant("NX-SHARED", "999", 1);
+        phone().addVariant(shared);
+        Product other = new Phone("Nexora Phone 16", NEXORA, "Text", 6.3, 4700, true);
+
+        assertThatThrownBy(() -> other.addVariant(shared))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("already belongs");
+        assertThat(other.getVariants()).isEmpty();
+    }
 }

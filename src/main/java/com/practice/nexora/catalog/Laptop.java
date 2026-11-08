@@ -1,17 +1,28 @@
 package com.practice.nexora.catalog;
 
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+
 import static com.practice.nexora.common.Numbers.requireBetween;
 import static com.practice.nexora.common.Numbers.requirePositive;
 import static com.practice.nexora.common.Text.requireText;
 
+@Entity
+@Table(name = "laptops")
+@DiscriminatorValue("LAPTOP")
 public class Laptop extends Product {
 
     private static final double ULTRAPORTABLE_LIMIT_KG = 1.3;
 
-    private final double screenInches;
-    private final String processor;
-    private final int ramGb;
-    private final double weightKg;
+    private  double screenInches;
+    private  String processor;
+    private  int ramGb;
+    private double weightKg;
+
+    protected Laptop() {
+
+    }
 
     public Laptop(String name, Brand brand, String description,
                   double screenInches, String processor, int ramGb, double weightKg) {

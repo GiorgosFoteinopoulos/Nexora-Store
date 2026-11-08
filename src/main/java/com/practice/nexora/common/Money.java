@@ -1,10 +1,14 @@
 package com.practice.nexora.common;
 
+import jakarta.persistence.Embeddable;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Currency;
 import java.util.Objects;
 
+
+@Embeddable
 public record Money(BigDecimal amount, Currency currency) {
 
     public static final Currency EUR = Currency.getInstance("EUR");

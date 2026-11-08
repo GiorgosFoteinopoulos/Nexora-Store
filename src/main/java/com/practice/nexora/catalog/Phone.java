@@ -1,13 +1,26 @@
 package com.practice.nexora.catalog;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+
 import static com.practice.nexora.common.Numbers.requireBetween;
 import static com.practice.nexora.common.Numbers.requirePositive;
 
+@Entity
+@Table(name = "phones")
+@DiscriminatorValue("PHONE")
 public class Phone extends Product{
 
-    private final double screenInches;
-    private final int batteryMah;
-    private final boolean fiveG;
+    private double screenInches;
+    private int batteryMah;
+    @Column(name = "five_g")
+    private boolean fiveG;
+
+    protected Phone() {
+
+    }
 
     public Phone(String name, Brand brand, String description,
                  double screenInches, int batteryMah, boolean fiveG) {
@@ -27,6 +40,7 @@ public class Phone extends Product{
     public int getBatteryMah() {
         return batteryMah;
     }
+
 
     public boolean isFiveG() {
         return fiveG;
