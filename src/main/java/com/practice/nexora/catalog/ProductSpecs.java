@@ -23,7 +23,7 @@ public sealed interface ProductSpecs {
     record AccessorySpecs(List<Category> fits) implements ProductSpecs {
 
     }
-    
+
 
     static ProductSpecs of(Product product) {
         return switch (product) {
