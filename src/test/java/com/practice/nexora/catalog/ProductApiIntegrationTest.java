@@ -58,4 +58,13 @@ class ProductApiIntegrationTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.detail").value("No product with slug 'nexora-phone-99'"));
     }
+
+    @Test
+    void listsProductsFilteredByBrand() throws Exception {
+        mvc.perform(get("/api/products").param("brand", "nexora"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.content[0].brand.name").value("Nexora"))
+                .andExpect(jsonPath("$.content[0].startingPrice.amount").value("799.00"));
+    }
 }

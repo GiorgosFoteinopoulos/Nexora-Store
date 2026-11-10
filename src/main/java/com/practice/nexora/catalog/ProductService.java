@@ -6,12 +6,20 @@ import com.practice.nexora.common.Slug;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.practice.nexora.common.PageResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+
 import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
 public class ProductService {
 
+    static final Sort CATALOG_ORDER = Sort.by("name", "id");
     private final ProductRepository products;
 
     public ProductService(ProductRepository products) {
@@ -31,5 +39,12 @@ public class ProductService {
         } catch (IllegalArgumentException invalid) {
             return Optional.empty();
         }
+    }
+
+    public PageResponse<ProductSummaryResponse> listProducts(ProductFilter filter, Pageable requested) {
+        Pageable pageable = PageRequest.of(requested.getPageNumber(), requested.getPageSize(), CATALOG_ORDER);
+        Specification<Product> conditions = ProductSpecifications.matching(filter);
+        Page<Product> page = products.findAll(conditions, pageable);
+        return PageResponse.from(page.map(ProductSummaryResponse::from));
     }
 }

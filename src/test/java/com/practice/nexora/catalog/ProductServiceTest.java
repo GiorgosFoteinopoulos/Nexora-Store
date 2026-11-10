@@ -19,6 +19,19 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import com.practice.nexora.common.PageResponse;
+import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+
+import java.util.List;
+
+import static org.mockito.Mockito.verify;
+
 
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
@@ -59,5 +72,29 @@ class ProductServiceTest {
         assertThatThrownBy(() -> service.getProduct(slug))
                 .isInstanceOf(NotFoundException.class);
         verifyNoInteractions(products);
+    }
+    @Test
+    void listsAPageOfSummaries() {
+        when(products.findAll(ArgumentMatchers.<Specification<Product>>any(), any(Pageable.class)))
+                .thenAnswer(call -> new PageImpl<>(List.of(phone()), call.getArgument(1), 6));
+
+        PageResponse<ProductSummaryResponse> page = service.listProducts(ProductFilter.none(), PageRequest.of(1, 5));
+
+        assertThat(page.content()).extracting(ProductSummaryResponse::name).containsExactly("Nexora Phone 15");
+        assertThat(page.page()).isEqualTo(1);
+        assertThat(page.size()).isEqualTo(5);
+        assertThat(page.totalElements()).isEqualTo(6);
+        assertThat(page.totalPages()).isEqualTo(2);
+    }
+
+    @Test
+    void alwaysSortsByNameThenId() {
+        ArgumentCaptor<Pageable> sent = ArgumentCaptor.forClass(Pageable.class);
+        when(products.findAll(ArgumentMatchers.<Specification<Product>>any(), sent.capture()))
+                .thenAnswer(call -> new PageImpl<>(List.of(), call.getArgument(1), 0));
+
+        service.listProducts(ProductFilter.none(), PageRequest.of(0, 20, Sort.by("description")));
+
+        assertThat(sent.getValue().getSort()).isEqualTo(Sort.by("name", "id"));
     }
 }
