@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 
 
 
+
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,17 +64,17 @@ class ProductListQueryCountTest {
         queries.reset();
     }
 
-    @ParameterizedTest(name = "{0} products cost 1 + {0} statements")
+    @ParameterizedTest(name = "{0} products cost 2 statements")
     @ValueSource(ints = {3, 6, 12})
-    void theListCostsOneQueryPlusOnePerProduct(int n) {
+    void theListCostsTwoStatementsWhateverItsSize(int n) {
         saveCatalogOf(n);
 
         PageResponse<ProductSummaryResponse> page = service.listProducts(ProductFilter.none(), PageRequest.of(0, 20));
 
         assertThat(page.content()).hasSize(n);
-        assertThat(queries.entityFetches()).isZero();
-        assertThat(queries.collectionFetches()).isEqualTo(n);
-        assertThat(queries.statements()).isEqualTo(1 + n);
+        assertThat(page.content())
+                .allSatisfy(product -> assertThat(product.startingPrice().amount()).isEqualTo("499.00"));
+        assertThat(queries.statements()).isEqualTo(2);
     }
 
     @Test
