@@ -2,7 +2,11 @@ package com.practice.nexora.catalog;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import io.swagger.v3.oas.annotations.media.Schema;
 
+@Schema(description = "Category-specific specifications; the fields depend on the product's category",
+        oneOf = {ProductSpecs.PhoneSpecs.class, ProductSpecs.LaptopSpecs.class, ProductSpecs.TabletSpecs.class,
+                ProductSpecs.WearableSpecs.class, ProductSpecs.AccessorySpecs.class})
 public sealed interface ProductSpecs {
 
     record  PhoneSpecs(double screenInches, int batteryMah, boolean fiveG) implements ProductSpecs {
