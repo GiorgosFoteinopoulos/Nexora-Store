@@ -15,6 +15,8 @@ import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 
+
+
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,25 +63,28 @@ class ProductListQueryCountTest {
         queries.reset();
     }
 
-    @ParameterizedTest(name = "{0} products cost 1 + 2 + {0} statements")
+    @ParameterizedTest(name = "{0} products cost 1 + {0} statements")
     @ValueSource(ints = {3, 6, 12})
-    void theListCostsOneQueryPlusOnePerBrandPlusOnePerProduct(int n) {
+    void theListCostsOneQueryPlusOnePerProduct(int n) {
         saveCatalogOf(n);
 
         PageResponse<ProductSummaryResponse> page = service.listProducts(ProductFilter.none(), PageRequest.of(0, 20));
 
         assertThat(page.content()).hasSize(n);
-        assertThat(queries.entityFetches()).isEqualTo(2);
+        assertThat(queries.entityFetches()).isZero();
         assertThat(queries.collectionFetches()).isEqualTo(n);
-        assertThat(queries.statements()).isEqualTo(1 + 2 + n);
+        assertThat(queries.statements()).isEqualTo(1 + n);
     }
 
     @Test
-    void theProductPageCostsAFixedThreeStatements() {
+    void theProductPageCostsOneStatement() {
         saveCatalogOf(6);
 
-        service.getProduct("phone-03");
+        ProductResponse product = service.getProduct("phone-03");
 
-        assertThat(queries.statements()).isEqualTo(3);
+        assertThat(product.variants()).hasSize(1);
+        assertThat(queries.entityFetches()).isZero();
+        assertThat(queries.collectionFetches()).isZero();
+        assertThat(queries.statements()).isEqualTo(1);
     }
 }
