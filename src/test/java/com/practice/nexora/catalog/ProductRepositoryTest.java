@@ -92,13 +92,24 @@ class ProductRepositoryTest {
 
     @Test
     void theBrandIsLoadedOnlyWhenFirstUsed() {
-        products.save(phone("Nexora Phone 15", nexora));
+        Product saved = products.save(phone("Nexora Phone 15", nexora));
         flushAndClear();
 
-        Product found = products.findBySlug(new Slug("nexora-phone-15")).orElseThrow();
+        Product found = products.findById(saved.getId()).orElseThrow();
 
         assertThat(Hibernate.isInitialized(found.getBrand())).isFalse();
         assertThat(found.getBrand().getName()).isEqualTo("Nexora");
+        assertThat(Hibernate.isInitialized(found.getBrand())).isTrue();
+    }
+
+    @Test
+    void theProductPageQueryFetchesTheBrandUpFront() {
+        products.save(phone("Nexora Phone 15", nexora));
+        flushAndClear();
+
+
+        Product found = products.findBySlug(new Slug("nexora-phone-15")).orElseThrow();
+
         assertThat(Hibernate.isInitialized(found.getBrand())).isTrue();
     }
 
