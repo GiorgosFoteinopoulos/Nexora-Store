@@ -107,7 +107,7 @@ class ProductRepositoryTest {
         products.save(phone("Nexora Phone 15", nexora));
         flushAndClear();
 
-        
+
         Product found = products.findBySlug(new Slug("nexora-phone-15")).orElseThrow();
 
         assertThat(Hibernate.isInitialized(found.getBrand())).isTrue();
