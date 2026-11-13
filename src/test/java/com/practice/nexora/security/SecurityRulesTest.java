@@ -39,7 +39,7 @@ class SecurityRulesTest {
     }
 
     @Test
-    void anyOtherUrlIsNeedsALogin() throws Exception {
+    void anyOtherUrlNeedsALogin() throws Exception {
         mvc.perform(get("/api/me")).andExpect(status().isUnauthorized());
     }
 }

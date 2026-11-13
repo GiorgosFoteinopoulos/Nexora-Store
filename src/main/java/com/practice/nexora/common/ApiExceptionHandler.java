@@ -16,4 +16,11 @@ public class ApiExceptionHandler {
         problem.setTitle("Not found");
         return problem;
     }
+
+    @ExceptionHandler(ConflictException.class)
+    ProblemDetail handleConflict(ConflictException exception) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, exception.getMessage());
+        problem.setTitle("Conflict");
+        return problem;
+    }
 }
