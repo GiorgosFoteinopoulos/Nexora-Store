@@ -1,10 +1,12 @@
 package com.practice.nexora.catalog;
 
 import com.practice.nexora.common.NotFoundException;
+import com.practice.nexora.security.SecurityConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestClassOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -30,6 +32,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @WebMvcTest(ProductController.class)
+@Import(SecurityConfig.class)
 public class ProductControllerTest {
 
     @Autowired
