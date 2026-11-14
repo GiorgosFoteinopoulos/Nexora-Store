@@ -22,7 +22,7 @@ class RegistrationIntegrationTest {
     private static final String GEORGE = """
             {"email": "George@Example.com", "password": "correct-horse"}
             """;
-    
+
     @Autowired
     private MockMvc mvc;
 

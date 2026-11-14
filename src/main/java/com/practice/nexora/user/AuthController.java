@@ -18,9 +18,11 @@ import org.springframework.web.bind.annotation.*;
 class AuthController {
 
     private final RegistrationService registrationService;
+    private final LoginService loginService;
 
-    AuthController(RegistrationService registrationService) {
+    AuthController(RegistrationService registrationService, LoginService loginService) {
         this.registrationService = registrationService;
+        this.loginService = loginService;
     }
 
     @Operation(summary = "Create an account")
@@ -33,5 +35,14 @@ class AuthController {
     @ResponseStatus(HttpStatus.CREATED)
     UserResponse register(@Valid @RequestBody RegisterRequest request) {
         return registrationService.register(request);
+    }
+
+    @Operation(summary = "Log in and get a token")
+    @ApiResponse(responseCode = "200", description = "The token to send as 'Authorization: Bearer ...'", useReturnTypeSchema = true)
+    @ApiResponse(responseCode = "401", description = "Wrong email or password",
+    content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+    @PostMapping("/login")
+    TokenResponse login(@Valid @RequestBody LoginRequest request) {
+        return loginService.login(request);
     }
 }

@@ -23,4 +23,11 @@ public class ApiExceptionHandler {
         problem.setTitle("Conflict");
         return problem;
     }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    ProblemDetail handleUnauthorized(UnauthorizedException exception) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, exception.getMessage());
+        problem.setTitle("Unauthorized");
+        return problem;
+    }
 }

@@ -1,6 +1,7 @@
 package com.practice.nexora.user;
 
 import com.practice.nexora.common.ConflictException;
+import com.practice.nexora.common.UnauthorizedException;
 import com.practice.nexora.security.SecurityConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ class AuthControllerTest {
 
     @MockitoBean
     private RegistrationService registrationService;
+
+    @MockitoBean
+    private LoginService loginService;
 
     private static String body(String email, String password) {
         return """
@@ -66,5 +70,28 @@ class AuthControllerTest {
                         .content(body("george@example.com", "correct-horse")))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.title").value("Conflict"));
+    }
+
+    @Test
+    void aCorrectLoginReturnsAToken() throws Exception {
+        when(loginService.login(any())).thenReturn(new TokenResponse("a.b.c", "Bearer", 3600));
+
+        mvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body("george@example.com", "correct-horse")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value("a.b.c"))
+                .andExpect(jsonPath("$.tokenType").value("Bearer"));
+    }
+
+    @Test
+    void aWrongLoginIsA401() throws Exception {
+        when(loginService.login(any())).thenThrow(new UnauthorizedException("Wrong email or password"));
+
+        mvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body("george@example.com", "wrong-horse")))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.detail").value("Wrong email or password"));
     }
 }
