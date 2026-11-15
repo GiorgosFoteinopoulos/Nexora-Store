@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -26,6 +27,9 @@ public class ProductVariant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Version
+    private long version;
 
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -103,9 +107,7 @@ public class ProductVariant {
     public boolean isInStock() {
         return stock > 0;
     }
-
-
-
+    
     public Long getId() {
         return id;
     }
@@ -134,7 +136,9 @@ public class ProductVariant {
         return stock;
     }
 
-
+    public long getVersion() {
+        return version;
+    }
 
     @Override
     public boolean equals(Object o) {

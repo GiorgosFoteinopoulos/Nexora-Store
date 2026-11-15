@@ -37,4 +37,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
             ORDER BY p.name
             """)
     List<Product> findInStockAtOrBelow(@Param("maxPrice") BigDecimal maxPrice);
+
+    @Query("select v from ProductVariant v where v.sku = :sku")
+    Optional<ProductVariant> findVariantBySku(@Param("sku") Sku sku);
 }
