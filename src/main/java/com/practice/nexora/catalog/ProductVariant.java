@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -27,6 +28,9 @@ public class ProductVariant {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Version
+    private long version;
+
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "product_id", nullable = false)
@@ -40,7 +44,7 @@ public class ProductVariant {
 
     private Integer storageGb;
 
-    @Embedded // Money's two fields become two columns of this table
+    @Embedded 
     @AttributeOverride(name = "amount", column = @Column(name = "price_amount", nullable = false, precision = 10, scale = 2))
     @AttributeOverride(name = "currency", column = @Column(name = "price_currency", nullable = false, length = 3))
     private Money price;
@@ -104,8 +108,6 @@ public class ProductVariant {
         return stock > 0;
     }
 
-
-
     public Long getId() {
         return id;
     }
@@ -134,7 +136,9 @@ public class ProductVariant {
         return stock;
     }
 
-
+    public long getVersion() {
+        return version;
+    }
 
     @Override
     public boolean equals(Object o) {
