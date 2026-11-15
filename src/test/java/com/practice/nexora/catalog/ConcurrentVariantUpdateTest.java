@@ -21,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -55,6 +56,9 @@ public class ConcurrentVariantUpdateTest {
     @Autowired
     private PlatformTransactionManager transactionManager;
 
+    @Autowired
+    private PriceChangeRepository priceChanges;
+
     @BeforeEach
     void saveAVariantWithStock10() {
         Brand nexora = brands.save(new Brand("Nexora"));
@@ -80,6 +84,17 @@ public class ConcurrentVariantUpdateTest {
 
                 .isInstanceOfAny(ConflictException.class, OptimisticLockingFailureException.class);
         assertThat(currentVariant().getVersion()).isEqualTo(1);
+    }
+
+    @RepeatedTest(3)
+    void onlyTheWinnersPriceChangeIsInTheHistory() throws Exception {
+        Results results = runAtTheSameTime(
+                asAdmin(() -> service.updateVariant(SKU, new UpdateVariantRequest(new BigDecimal("849"), null, 0L))),
+                asAdmin(() -> service.updateVariant(SKU, new UpdateVariantRequest(new BigDecimal("899"), null, 0L)))
+        );
+
+        assertThat(results.successes()).isEqualTo(1);
+        assertThat(priceChanges.countByVariant_Sku(new Sku(SKU))).isEqualTo(1);
     }
 
     @Test

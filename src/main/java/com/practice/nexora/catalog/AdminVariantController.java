@@ -11,6 +11,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(name = "Admin")
 @RestController
 @RequestMapping("/api/admin/variants")
@@ -35,5 +37,11 @@ class AdminVariantController {
     @PatchMapping("/{sku}")
     AdminVariantResponse updateVariant(@PathVariable String sku, @Valid @RequestBody UpdateVariantRequest request) {
         return adminCatalogService.updateVariant(sku, request);
+    }
+
+    @Operation(summary = "A variant's price history, oldest first", security = @SecurityRequirement(name = "bearer"))
+    @GetMapping("/{sku}/price-history")
+    List<PriceChangeResponse> getPriceHistory(@PathVariable String sku) {
+        return adminCatalogService.getPriceHistory(sku);
     }
 }

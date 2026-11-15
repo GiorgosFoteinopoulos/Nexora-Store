@@ -14,6 +14,7 @@ import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.context.annotation.Import;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -36,6 +37,9 @@ class AdminCatalogServiceTest {
 
     @Autowired
     private TestEntityManager entityManager;
+
+    @Autowired
+    private PriceChangeRepository priceChanges;
 
     @BeforeEach
     void saveAPhone() {
@@ -81,5 +85,31 @@ class AdminCatalogServiceTest {
     @Test
     void anUnknownSkuIsNotFound() {
         assertThatThrownBy(() -> service.getVariant("NX-NOPE-1")).isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    void aPriceChangeLeavesOneHistoryRow() {
+        service.updateVariant(SKU, new UpdateVariantRequest(new BigDecimal("849"), null, 0L));
+
+        List<PriceChange> history = priceChanges.findByVariant_SkuOrderByChangedAtAscIdAsc(new Sku(SKU));
+        assertThat(history).singleElement().satisfies(change -> {
+            assertThat(change.getOldPrice()).isEqualTo(Money.euros("799"));
+            assertThat(change.getNewPrice()).isEqualTo(Money.euros("849"));
+            assertThat(change.getChangedBy()).isEqualTo("system");
+        });
+    }
+
+    @Test
+    void aStockOnlyChangeLeavesNoHistory() {
+        service.updateVariant(SKU, new UpdateVariantRequest(null, 3, 0L));
+
+        assertThat(priceChanges.countByVariant_Sku(new Sku(SKU))).isZero();
+    }
+
+    @Test
+    void theSamePriceAgainLeavesNoHistory() {
+        service.updateVariant(SKU, new UpdateVariantRequest(new BigDecimal("799"), null, 0L));
+
+        assertThat(priceChanges.countByVariant_Sku(new Sku(SKU))).isZero();
     }
 }

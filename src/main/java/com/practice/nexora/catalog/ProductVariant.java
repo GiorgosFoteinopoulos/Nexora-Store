@@ -44,7 +44,7 @@ public class ProductVariant {
 
     private Integer storageGb;
 
-    @Embedded // Money's two fields become two columns of this table
+    @Embedded 
     @AttributeOverride(name = "amount", column = @Column(name = "price_amount", nullable = false, precision = 10, scale = 2))
     @AttributeOverride(name = "currency", column = @Column(name = "price_currency", nullable = false, length = 3))
     private Money price;
@@ -107,7 +107,7 @@ public class ProductVariant {
     public boolean isInStock() {
         return stock > 0;
     }
-    
+
     public Long getId() {
         return id;
     }

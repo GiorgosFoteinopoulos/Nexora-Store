@@ -116,4 +116,28 @@ class AdminVariantApiIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON).content(patchBody(999, 0)))
                 .andExpect(status().isForbidden());
     }
+
+    @Test
+    void priceChangesShowUpInTheHistoryWithWhoMadeThem() throws Exception {
+        String admin = "Bearer " + tokenFor("admin@nexora.local", "admin-password");
+
+        mvc.perform(patch(URL).header("Authorization", admin).contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {"price": 849, "version": 0}
+                        """))
+                .andExpect(status().isOk());
+        mvc.perform(patch(URL).header("Authorization", admin).contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {"price": 899, "version": 1}
+                        """))
+                .andExpect(status().isOk());
+
+        mvc.perform(get(URL + "/price-history").header("Authorization", admin))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].oldPrice.amount").value("799.00"))
+                .andExpect(jsonPath("$[0].newPrice.amount").value("849.00"))
+                .andExpect(jsonPath("$[1].newPrice.amount").value("899.00"))
+                .andExpect(jsonPath("$[0].changedBy").value("admin@nexora.local"));
+    }
 }
