@@ -1,6 +1,8 @@
 package com.practice.nexora.user;
 
 
+import com.practice.nexora.common.NexoraProperties;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
@@ -15,12 +17,18 @@ import java.util.List;
 @Service
 public class TokenService {
 
-    static final Duration LIFETIME = Duration.ofHours(1);
-
     private final JwtEncoder encoder;
+    private final Duration lifetime;
 
-    public TokenService(JwtEncoder encoder) {
+
+    @Autowired
+    public TokenService(JwtEncoder encoder, NexoraProperties properties) {
+        this(encoder, properties.jwt().ttl());
+    }
+
+    TokenService(JwtEncoder encoder, Duration lifetime) {
         this.encoder = encoder;
+        this.lifetime = lifetime;
     }
 
     public TokenResponse issueFor(UserAccount account) {
@@ -29,11 +37,11 @@ public class TokenService {
                 .issuer("nexora-store")
                 .subject(account.getEmail())
                 .issuedAt(now)
-                .expiresAt(now.plus(LIFETIME))
+                .expiresAt(now.plus(lifetime))
                 .claim("roles", List.of(account.getRole().name()))
                 .build();
         JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
         String token = encoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
-        return new TokenResponse(token, "Bearer", LIFETIME.toSeconds());
+        return new TokenResponse(token, "Bearer", lifetime.toSeconds());
     }
 }
