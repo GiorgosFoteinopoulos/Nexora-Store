@@ -9,6 +9,7 @@ import com.practice.nexora.common.Slug;
 import com.practice.nexora.user.UserAccount;
 import com.practice.nexora.user.UserAccountRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -57,6 +58,16 @@ public class ReviewService {
                 reviews.countByProduct(product),
                 list
         );
+    }
+
+    public void deleteReview(Long reviewId, String requesterEmail, boolean requesterIsAdmin) {
+        Review review = reviews.findById(reviewId)
+                .orElseThrow(() -> new NotFoundException("Review not found: " + reviewId));
+
+        if (!requesterIsAdmin && !review.isWrittenBy(requesterEmail)) {
+            throw new AccessDeniedException("You can only delete your own reviews");
+        }
+        reviews.delete(review);
     }
 
     private Product findProduct(String rawSlug) {
