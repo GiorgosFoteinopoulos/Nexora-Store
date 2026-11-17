@@ -1,6 +1,7 @@
 package com.practice.nexora.catalog;
 
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ public class BrandService {
         this.brands = brands;
     }
 
+    @Cacheable("brands")
     public List<BrandResponse> listBrands() {
         return brands.findAll(BY_NAME).stream()
                 .map(BrandResponse::from)
