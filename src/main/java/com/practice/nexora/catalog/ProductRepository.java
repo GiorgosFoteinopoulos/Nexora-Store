@@ -11,6 +11,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +24,9 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
     @EntityGraph(attributePaths = {"brand", "variants"})
     Optional<Product> findBySlug(Slug slug);
+
+    @EntityGraph(attributePaths = "brand")
+    List<Product> findBySlugIn(Collection<Slug> slugs);
 
     List<Product> findByBrand(Brand brand);
 

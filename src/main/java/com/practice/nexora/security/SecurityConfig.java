@@ -1,7 +1,9 @@
 package com.practice.nexora.security;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
+import com.practice.nexora.common.NexoraProperties;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -30,6 +32,7 @@ import java.util.List;
 
 @Configuration
 @EnableMethodSecurity
+@EnableConfigurationProperties(NexoraProperties.class)
 public class SecurityConfig {
 
     @Bean
@@ -59,12 +62,12 @@ public class SecurityConfig {
     }
 
     @Bean
-    CorsConfigurationSource corsConfigurationSource(@Value("${nexora.cors.allowed-origins}") String[] allowedOrigins) {
+    CorsConfigurationSource corsConfigurationSource(NexoraProperties properties) {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(allowedOrigins));
+        config.setAllowedOrigins(List.copyOf(properties.cors().allowedOrigins()));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        config.setMaxAge(3600L); // the browser may remember the answer for an hour
+        config.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/api/**", config);
         return source;
@@ -75,8 +78,8 @@ public class SecurityConfig {
     @Bean
     JwtAuthenticationConverter rolesFromToken() {
         JwtGrantedAuthoritiesConverter roles = new JwtGrantedAuthoritiesConverter();
-        roles.setAuthoritiesClaimName("roles"); // read OUR claim, not "scope"
-        roles.setAuthorityPrefix("ROLE_");      // ADMIN -> ROLE_ADMIN, which hasRole('ADMIN') looks for
+        roles.setAuthoritiesClaimName("roles");
+        roles.setAuthorityPrefix("ROLE_");
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(roles);
         return converter;
@@ -89,11 +92,8 @@ public class SecurityConfig {
 
 
     @Bean
-    SecretKey jwtSigningKey(@Value("${nexora.jwt.secret}") String secret) {
-        byte[] bytes = secret.getBytes(StandardCharsets.UTF_8);
-        if (bytes.length < 32) {
-            throw new IllegalStateException("nexora.jwt.secret must be at least 32 bytes long");
-        }
+    SecretKey jwtSigningKey(NexoraProperties properties) {
+        byte[] bytes = properties.jwt().secret().getBytes(StandardCharsets.UTF_8);
         return new SecretKeySpec(bytes, "HmacSHA256");
     }
 

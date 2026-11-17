@@ -24,7 +24,7 @@ class TokenServiceTest {
     }
 
     private final SecretKey serverKey = key("test-secret-that-is-long-enough-0123456789");
-    private final TokenService tokens = new TokenService(new NimbusJwtEncoder(new ImmutableSecret<>(serverKey)));
+    private final TokenService tokens = new TokenService(new NimbusJwtEncoder(new ImmutableSecret<>(serverKey)), Duration.ofHours(1));
     private final UserAccount george = new UserAccount("george@example.com", "some-hash", Role.USER);
 
     @Test

@@ -5,6 +5,7 @@ import com.practice.nexora.common.ConflictException;
 import com.practice.nexora.common.CurrentUser;
 import com.practice.nexora.common.Money;
 import com.practice.nexora.common.NotFoundException;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,7 +40,9 @@ public class AdminCatalogService {
                 .toList();
     }
 
+
     @PreAuthorize("hasRole('ADMIN')")
+    @CacheEvict(cacheNames = "products", allEntries = true)
     public AdminVariantResponse updateVariant(String sku, UpdateVariantRequest request) {
         ProductVariant variant = find(sku);
 

@@ -1,5 +1,6 @@
 package com.practice.nexora.user;
 
+import com.practice.nexora.common.NexoraProperties;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -20,7 +21,8 @@ class AdminAccountInitializerTest {
     private PasswordEncoder passwordEncoder;
 
     private AdminAccountInitializer initializer(String email, String password) {
-        return new AdminAccountInitializer(accounts, passwordEncoder, email, password);
+        return new AdminAccountInitializer(accounts, passwordEncoder,
+                new NexoraProperties.Admin(email, password));
     }
 
     @Test

@@ -3,6 +3,7 @@ package com.practice.nexora.catalog;
 
 import com.practice.nexora.common.NotFoundException;
 import com.practice.nexora.common.Slug;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,8 @@ public class ProductService {
         this.products = products;
     }
 
+
+    @Cacheable("products")
     public ProductResponse getProduct(String slug) {
         return parse(slug)
                 .flatMap(products::findBySlug)
