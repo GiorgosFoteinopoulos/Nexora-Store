@@ -17,7 +17,8 @@ import java.util.List;
 public record NexoraProperties(
     @Valid @NotNull Jwt jwt,
     @Valid @DefaultValue Admin admin,
-    @Valid @NotNull Cors cors) {
+    @Valid @NotNull Cors cors,
+    @Valid @DefaultValue Alerts alerts) {
 
     public record Jwt(@NotBlank String secret, @DefaultValue("1h") Duration ttl) {
 
@@ -48,5 +49,14 @@ public record NexoraProperties(
 
     public record Cors(@NotEmpty List<String> allowedOrigins) {
 
+    }
+
+    public record Alerts(@DefaultValue("7d") Duration lookback) {
+
+        public Alerts {
+            if (lookback != null && (lookback.isZero()) || lookback.isNegative()) {
+                throw new IllegalArgumentException("nexora.alerts.look-back must be positive");
+            }
+        }
     }
 }
