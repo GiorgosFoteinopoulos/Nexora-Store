@@ -9,6 +9,8 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.context.annotation.Import;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -27,18 +29,24 @@ class DevCatalogTest {
     @Test
     void loadsTheWholeDemoCatalog() {
         assertThat(brands.count()).isEqualTo(3);
-        assertThat(products.count()).isEqualTo(14);
-        assertThat(products.findAllOfKind(Phone.class)).hasSize(4);
-        assertThat(products.findAllOfKind(Laptop.class)).hasSize(3);
-        assertThat(products.findAllOfKind(Tablet.class)).hasSize(2);
-        assertThat(products.findAllOfKind(Wearable.class)).hasSize(2);
-        assertThat(products.findAllOfKind(Accessory.class)).hasSize(3);
+        assertThat(products.count()).isEqualTo(46);
+        assertThat(products.findAllOfKind(Phone.class)).hasSize(12);
+        assertThat(products.findAllOfKind(Laptop.class)).hasSize(11);
+        assertThat(products.findAllOfKind(Tablet.class)).hasSize(7);
+        assertThat(products.findAllOfKind(Wearable.class)).hasSize(7);
+        assertThat(products.findAllOfKind(Accessory.class)).hasSize(9);
+
+        int variants = products.findAll().stream().mapToInt(product -> product.getVariants().size()).sum();
+        assertThat(variants).isEqualTo(60);
     }
 
     @Test
     void everyProductHasVariantsAndSensibleSpecifications() {
         assertThat(products.findAll()).allSatisfy(product -> {
             assertThat(product.getVariants()).as("variants of %s", product.getName()).isNotEmpty();
+            assertThat(product.getDescription())
+                    .as("description of %s should say who it is for", product.getName())
+                    .hasSizeGreaterThan(60);
             switch (product) {
                 case Phone phone -> assertThat(phone.getScreenInches()).isBetween(3.0, 8.0);
                 case Laptop laptop -> assertThat(laptop.getScreenInches()).isBetween(10.0, 18.0);
@@ -61,5 +69,15 @@ class DevCatalogTest {
         assertThat(hub).isInstanceOfSatisfying(Accessory.class, accessory ->
                 assertThat(accessory.getCompatibleWith())
                         .containsExactlyInAnyOrder(Category.LAPTOP, Category.TABLET));
+    }
+
+    @Test
+    void exactlyOneProductIsSoldOut_soNexaCanBeTestedOnIt() {
+        List<String> soldOut = products.findAll().stream()
+                .filter(product -> !product.isAvailable())
+                .map(Product::getName)
+                .toList();
+
+        assertThat(soldOut).containsExactly("Nexora Watch Ultra");
     }
 }
