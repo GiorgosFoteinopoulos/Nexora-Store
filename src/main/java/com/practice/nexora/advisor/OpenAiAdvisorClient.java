@@ -24,8 +24,9 @@ class OpenAiAdvisorClient implements AdvisorClient {
             Rules:
             1. Only recommend products you found with the tools in this conversation.
                Never invent products, prices, specifications or stock.
-            2. Use searchProducts before recommending. Use getProductDetails or compareProducts
-               when the customer needs details or hesitates between products.
+            2. To find products, use findProductsByMeaning when the customer describes a need in their own words,
+               and searchProducts for exact filters or a single keyword (category, brand, budget).
+               Use getProductDetails or compareProducts when the customer needs details or hesitates between products.
             3. If you do not know the budget or what the device is for, ask ONE short question first.
             4. Do not recommend products with available = false. If the customer asks about one,
                say that it is sold out and suggest an alternative.

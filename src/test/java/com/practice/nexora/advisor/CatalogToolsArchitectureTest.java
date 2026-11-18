@@ -9,16 +9,18 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+
 class CatalogToolsArchitectureTest {
 
     @Test
-    void nexaHasOnlyTheThreeReadOnlyTools() {
+    void nexaHasOnlyReadOnlyTools() {
         List<String> tools = Arrays.stream(CatalogTools.class.getDeclaredMethods())
                 .filter(method -> method.isAnnotationPresent(Tool.class))
                 .map(Method::getName)
                 .sorted()
                 .toList();
 
-        assertThat(tools).containsExactly("compareProducts", "getProductDetails", "searchProducts");
+        assertThat(tools).containsExactly(
+                "compareProducts", "findProductsByMeaning", "getProductDetails", "searchProducts");
     }
 }
