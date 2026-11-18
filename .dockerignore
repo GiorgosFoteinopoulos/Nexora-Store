@@ -1,0 +1,12 @@
+.env
+.env.*
+.git
+.github
+.idea
+.run
+.vscode
+*.iml
+target
+docs
+Dockerfile
+compose.yaml
