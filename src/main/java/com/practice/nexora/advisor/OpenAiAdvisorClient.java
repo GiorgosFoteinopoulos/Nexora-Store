@@ -1,6 +1,9 @@
 package com.practice.nexora.advisor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.metadata.Usage;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +15,8 @@ import java.util.stream.Collectors;
 @ConditionalOnProperty(prefix = "nexora.advisor", name = "provider", havingValue = "openai")
 class OpenAiAdvisorClient implements AdvisorClient {
 
+    private static final Logger log = LoggerFactory.getLogger(OpenAiAdvisorClient.class);
+    
     static final String SYSTEM_PROMPT = """
             You are Nexa, the shopping advisor of Nexora Store, a consumer-electronics shop
             (phones, laptops, tablets, wearables, accessories). All prices are in euros.
@@ -50,17 +55,31 @@ class OpenAiAdvisorClient implements AdvisorClient {
     }
 
     static String withHistory(List<ChatTurn> history, String userMessage) {
+        String message = oneLine(userMessage);
         if (history.isEmpty()) {
-            return userMessage;
+            return message;
         }
         String transcript = history.stream()
-                .map(turn -> (turn.role() == ChatRole.USER ? "Customer: " : "Nexa: ") + turn.text())
+                .map(turn -> (turn.role() == ChatRole.USER ? "Customer: " : "Nexa: ") + oneLine(turn.text()))
                 .collect(Collectors.joining("\n"));
         return """
                 Conversation so far (oldest first):
                 %s
-                
+
                 Customer's new message:
-                %s""".formatted(transcript, userMessage);
+                %s""".formatted(transcript, message);
+    }
+
+    static String oneLine(String text) {
+        return text == null ? "" : text.replaceAll("\\s*\\R\\s*", " ").strip();
+    }
+
+    private static void logUsage(org.springframework.ai.chat.model.ChatResponse response) {
+        if (response == null || response.getMetadata() == null || response.getMetadata().getUsage() == null) {
+            return;
+        }
+        Usage usage = response.getMetadata().getUsage();
+        log.info("Nexa tokens: prompt={}, completion={}, total={}",
+                usage.getPromptTokens(), usage.getCompletionTokens(), usage.getTotalTokens());
     }
 }

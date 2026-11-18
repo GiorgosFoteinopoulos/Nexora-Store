@@ -1,6 +1,5 @@
 package com.practice.nexora.advisor;
 
-
 import com.practice.nexora.TestcontainersConfiguration;
 import com.practice.nexora.user.Role;
 import com.practice.nexora.user.UserAccount;
@@ -37,13 +36,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(TestcontainersConfiguration.class)
-public class AdvisorMemoryIntegrationTest {
+class AdvisorMemoryIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
-    private AdvisorService  advisorService;
+    private AdvisorService advisorService;
 
     @Autowired
     private AdvisorMessageRepository messages;
@@ -57,6 +56,7 @@ public class AdvisorMemoryIntegrationTest {
     @MockitoBean
     private AdvisorClient advisor;
 
+    /** What the scripted Nexa received as history on each call, in call order. */
     private final List<List<ChatTurn>> sentHistories = new CopyOnWriteArrayList<>();
 
     @BeforeEach
@@ -81,8 +81,8 @@ public class AdvisorMemoryIntegrationTest {
 
     private void ask(String email, String message) throws Exception {
         mockMvc.perform(post("/api/advisor/chat").with(as(email))
-                .contentType(APPLICATION_JSON)
-                .content("{\"message\": \"" + message + "\"}"))
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"message\": \"" + message + "\"}"))
                 .andExpect(status().isOk());
     }
 
@@ -135,7 +135,7 @@ public class AdvisorMemoryIntegrationTest {
     }
 
     @Test
-    void forgettingStartsAFreshConversation()  throws Exception {
+    void forgettingStartsAFreshConversation() throws Exception {
         ask("george@example.com", "I need a laptop");
 
         mockMvc.perform(delete("/api/advisor/conversation").with(as("george@example.com")))
@@ -152,7 +152,7 @@ public class AdvisorMemoryIntegrationTest {
         when(advisor.reply(anyList(), anyString())).thenThrow(new IllegalStateException("model unavailable"));
 
         assertThatThrownBy(() -> advisorService.chat("george@example.com", "I need a laptop"))
-                .isInstanceOf(IllegalStateException.class);
+                .isInstanceOf(com.practice.nexora.common.ServiceUnavailableException.class);
 
         assertThat(messages.count()).isZero();
     }

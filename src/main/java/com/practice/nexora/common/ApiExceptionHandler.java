@@ -3,13 +3,17 @@ package com.practice.nexora.common;
 
 
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+
+    static final String RETRY_AFTER_SECONDS = "10";
 
     @ExceptionHandler(BadRequestException.class)
     ProblemDetail handleBadRequest(BadRequestException exception) {
@@ -45,5 +49,14 @@ public class ApiExceptionHandler {
                 "This was changed by someone else at the same moment. Reload and try again.");
         problem.setTitle("Conflict");
         return problem;
+    }
+
+    @ExceptionHandler(ServiceUnavailableException.class)
+    ResponseEntity<ProblemDetail> handleUnavailable(ServiceUnavailableException exception) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE, exception.getMessage());
+        problem.setTitle("Service Unavailable");
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .header(HttpHeaders.RETRY_AFTER, RETRY_AFTER_SECONDS)
+                .body(problem);
     }
 }

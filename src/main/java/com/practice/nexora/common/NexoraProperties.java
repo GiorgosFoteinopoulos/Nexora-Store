@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.aop.Advisor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.validation.annotation.Validated;
@@ -15,10 +16,11 @@ import java.util.List;
 @Validated
 @ConfigurationProperties(prefix = "nexora")
 public record NexoraProperties(
-    @Valid @NotNull Jwt jwt,
-    @Valid @DefaultValue Admin admin,
-    @Valid @NotNull Cors cors,
-    @Valid @DefaultValue Alerts alerts) {
+        @Valid @NotNull Jwt jwt,
+        @Valid @DefaultValue Admin admin,
+        @Valid @NotNull Cors cors,
+        @Valid @DefaultValue Alerts alerts,
+        @Valid @DefaultValue Advisor advisor) {
 
     public record Jwt(@NotBlank String secret, @DefaultValue("1h") Duration ttl) {
 
@@ -56,6 +58,14 @@ public record NexoraProperties(
         public Alerts {
             if (lookback != null && (lookback.isZero()) || lookback.isNegative()) {
                 throw new IllegalArgumentException("nexora.alerts.look-back must be positive");
+            }
+        }
+    }
+
+    public record Advisor(@DefaultValue("30s") Duration timeout) {
+        public Advisor {
+            if (timeout != null && (timeout.isZero() || timeout.isNegative())) {
+                throw new IllegalArgumentException("nexora.advisor.timeout must be positive");
             }
         }
     }
