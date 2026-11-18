@@ -4,7 +4,9 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Component
 @ConditionalOnProperty(prefix = "nexora.advisor", name = "provider", havingValue = "openai")
@@ -39,11 +41,26 @@ class OpenAiAdvisorClient implements AdvisorClient {
     }
 
     @Override
-    public NexaAnswer reply(String userMessage) {
+    public NexaAnswer reply(List<ChatTurn> history, String userMessage) {
         NexaAnswer answer = chat.prompt()
-                .user(userMessage)
+                .user(withHistory(history, userMessage))
                 .call()
                 .entity(NexaAnswer.class);
         return answer == null ? new NexaAnswer("", null) : answer;
+    }
+
+    static String withHistory(List<ChatTurn> history, String userMessage) {
+        if (history.isEmpty()) {
+            return userMessage;
+        }
+        String transcript = history.stream()
+                .map(turn -> (turn.role() == ChatRole.USER ? "Customer: " : "Nexa: ") + turn.text())
+                .collect(Collectors.joining("\n"));
+        return """
+                Conversation so far (oldest first):
+                %s
+                
+                Customer's new message:
+                %s""".formatted(transcript, userMessage);
     }
 }

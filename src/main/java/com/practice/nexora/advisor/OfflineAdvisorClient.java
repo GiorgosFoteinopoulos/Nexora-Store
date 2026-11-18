@@ -12,7 +12,7 @@ class OfflineAdvisorClient implements AdvisorClient {
     static final String REPLY = "Nexa is offline in this environment. Please browse the catalog in the meantime.";
 
     @Override
-    public NexaAnswer reply(String userMessage) {
+    public NexaAnswer reply(List<ChatTurn> history, String userMessage) {
         return new NexaAnswer(REPLY, List.of());
     }
 }
