@@ -1,0 +1,24 @@
+{
+  "questions": [
+    { "question": "my phone keeps cracking when I drop it at work", "expected": ["voltix-rugged-r2"] },
+    { "question": "my grandmother cannot read small text", "expected": ["lumio-easy", "lumio-note-6"] },
+    { "question": "I hate charging my phone every night", "expected": ["voltix-v9", "voltix-v9-pro", "voltix-rugged-r2", "voltix-v7"] },
+    { "question": "I want great pictures in the dark", "expected": ["nexora-phone-15-pro"] },
+    { "question": "something pocket-sized I can use one-handed", "expected": ["nexora-phone-15-mini", "nexora-phone-15", "nexora-tab-mini-8"] },
+    { "question": "I make YouTube videos and need serious power", "expected": ["nexora-book-pro-16", "voltix-gamer-g7"] },
+    { "question": "something under a kilo for flights", "expected": ["nexora-book-13"] },
+    { "question": "I want to play Fortnite with my friends", "expected": ["voltix-gamer-g5", "voltix-gamer-g7", "voltix-v9-pro"] },
+    { "question": "the cheapest way for my son to do his homework", "expected": ["lumio-book-14", "voltix-air-13"] },
+    { "question": "I want to take handwritten notes in lectures", "expected": ["nexora-tab-11", "lumio-flip-14", "nexora-pencil-2", "nexora-tab-mini-8"] },
+    { "question": "something my toddler can play with and not destroy", "expected": ["lumio-pad-kids-8", "voltix-tab-10"] },
+    { "question": "digital painting for my job as an artist", "expected": ["nexora-tab-13-pro", "nexora-pencil-2"] },
+    { "question": "I go jogging and want to leave my phone at home", "expected": ["nexora-watch-s3", "voltix-band-5", "nexora-watch-ultra"] },
+    { "question": "my kid walks to school alone and I worry", "expected": ["voltix-kids-watch"] },
+    { "question": "my battery always dies on long days out", "expected": ["lumio-power-bank-20000", "voltix-v9"] },
+    { "question": "I hate carrying three different chargers on holiday", "expected": ["nexora-65w-charger"] },
+    { "question": "my new laptop has no HDMI port", "expected": ["voltix-usb-c-hub"] },
+    { "question": "a padded cover for my 14 inch notebook", "expected": ["voltix-laptop-sleeve-14"] },
+    { "question": "a first phone for my teenage daughter", "expected": ["lumio-lite-2", "lumio-lite-3"] },
+    { "question": "a watch for climbing mountains", "expected": ["nexora-watch-ultra"] }
+  ]
+}

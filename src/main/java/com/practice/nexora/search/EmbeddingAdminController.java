@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 class EmbeddingAdminController {
 
     private final ProductEmbeddingService embeddings;
+    private final SemanticSearchEvaluator evaluator;
 
-    EmbeddingAdminController(ProductEmbeddingService embeddings) {
+    EmbeddingAdminController(ProductEmbeddingService embeddings, SemanticSearchEvaluator evaluator) {
         this.embeddings = embeddings;
+        this.evaluator = evaluator;
     }
 
     @PostMapping("/refresh")
@@ -23,5 +25,12 @@ class EmbeddingAdminController {
     @Operation(summary = "Embed new or changed products (idempotent: unchanged products are skipped)")
     EmbeddingRun refresh() {
         return embeddings.refresh();
+    }
+
+    @PostMapping("/evaluate")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Score semantic search against the golden set: hit@1, hit@3, MRR (one embedding call per question)")
+    EvaluationReport evaluate() {
+        return evaluator.evaluate();
     }
 }
