@@ -1,4 +1,8 @@
 package com.practice.nexora.advisor;
 
-public record ChatResponse(String reply) {
+import com.practice.nexora.catalog.ProductResponse;
+
+import java.util.List;
+
+public record ChatResponse(String reply, List<ProductResponse> products) {
 }

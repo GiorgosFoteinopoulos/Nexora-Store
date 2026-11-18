@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Nexa")
 class AdvisorController {
 
-    private final AdvisorClient advisor;
+    private final AdvisorService advisor;
 
-    AdvisorController(AdvisorClient advisor) {
+    AdvisorController(AdvisorService advisor) {
         this.advisor = advisor;
     }
     @PostMapping("/chat")
-    @Operation(summary = "Ask Nexa (logged-in users)")
+    @Operation(summary = "Ask Nexa (logged-in users). Recommended products come back as verified cards.")
     ChatResponse chat(@Valid @RequestBody ChatRequest request) {
-        return new ChatResponse(advisor.reply(request.message()));
+        return advisor.chat(request.message());
     }
 }

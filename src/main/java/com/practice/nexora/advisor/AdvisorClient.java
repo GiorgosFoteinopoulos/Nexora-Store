@@ -2,5 +2,5 @@ package com.practice.nexora.advisor;
 
 public interface AdvisorClient {
 
-    String reply(String userMessage);
+    NexaAnswer reply(String userMessage);
 }
