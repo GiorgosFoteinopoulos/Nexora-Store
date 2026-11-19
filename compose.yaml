@@ -31,8 +31,15 @@ services:
       OPENAI_MODEL: ${OPENAI_MODEL:-}
       OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-text-embedding-3-small}
       JAVA_TOOL_OPTIONS: -XX:MaxRAMPercentage=75
+    restart: unless-stopped
+
+  web:
+    build: ./web
+    image: nexora-web:local
+    depends_on:
+      - backend
     ports:
-      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:8081:80"
     restart: unless-stopped
 
 volumes:

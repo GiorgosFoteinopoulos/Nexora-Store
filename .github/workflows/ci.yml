@@ -34,6 +34,9 @@ jobs:
       - name: Build the Docker image
         run: docker build -t nexora-store:ci .
 
+      - name: Build the web image
+        run: docker build -t nexora-web:ci web
+
       - name: Upload test reports
         if: failure()
         uses: actions/upload-artifact@v4

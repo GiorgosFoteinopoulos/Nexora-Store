@@ -10,3 +10,4 @@ target
 docs
 Dockerfile
 compose.yaml
+web

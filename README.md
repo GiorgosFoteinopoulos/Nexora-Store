@@ -10,7 +10,7 @@ Work in progress, built step by step with Java 25, Spring Boot 4, PostgreSQL 18 
 ## Run the whole stack with Docker
 1. Copy `.env.example` to `.env` and set `DB_PASSWORD`, `JWT_SECRET` (32+ characters) and the admin account.
 2. `docker compose up -d --build`
-3. Open http://localhost:8080/swagger-ui.html
+3. 3. Open the store at http://localhost:8081 (API docs: http://localhost:8081/swagger-ui.html)
 
 Nexa runs offline by default. For the real AI advisor set `NEXORA_PROFILES=docker,openai`,
 `OPENAI_API_KEY` and `OPENAI_MODEL` in `.env`.
