@@ -4,10 +4,13 @@ import { clearSession, getSession } from './session.js';
 const API_BASE = location.port === '5500' ? 'http://localhost:8080/api' : '/api';
 
 export class ApiError extends Error {
-    constructor(status, problem, fallback) {
-        super(problem?.detail ?? fallback ?? `Request failed (${status}).`);
+    constructor(status, problem, fallback, requestId = null) {
+        const text = problem?.detail ?? fallback ?? `Request failed (${status}).`;
+
+        super(status >= 500 && requestId ? `${text} (reference: ${requestId.slice(0, 8)})` : text);
         this.status = status;
         this.problem = problem ?? {};
+        this.requestId = requestId;
     }
 }
 
@@ -41,21 +44,21 @@ async function request(method, path, { params = {}, body, auth = false } = {}) {
     }
 
     if (!response.ok) {
+        const requestId = response.headers.get('X-Request-Id');
         let problem = null;
         try {
             problem = await response.json();
         } catch {
-
+            // not JSON (for example nginx's own 502 page)
         }
         if (response.status === 401 && auth) {
             clearSession();
-            throw new ApiError(401, null, 'Your session has expired. Please log in again.');
+            throw new ApiError(401, null, 'Your session has expired. Please log in again.', requestId);
         }
-        throw new ApiError(response.status, problem);
+        throw new ApiError(response.status, problem, null, requestId);
     }
     return response.status === 204 ? null : response.json();
 }
-
 
 export const fetchBrands = () => request('GET', '/brands');
 export const fetchProducts = (params) => request('GET', '/products', { params });
@@ -75,6 +78,7 @@ export const addToWishlist = (slug) => request('PUT', `/me/wishlist/${encodeURIC
 export const removeFromWishlist = (slug) => request('DELETE', `/me/wishlist/${encodeURIComponent(slug)}`, { auth: true });
 export const fetchNotifications = () => request('GET', '/me/notifications', { auth: true });
 export const markNotificationsRead = () => request('PUT', '/me/notifications/read', { auth: true });
+
 
 export const chatWithNexa = (message) => request('POST', '/advisor/chat', { body: { message }, auth: true });
 export const fetchConversation = () => request('GET', '/advisor/conversation', { auth: true });

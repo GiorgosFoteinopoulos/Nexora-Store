@@ -1,6 +1,5 @@
 package com.practice.nexora.advisor;
 
-
 import com.practice.nexora.catalog.ProductResponse;
 import com.practice.nexora.catalog.ProductService;
 import com.practice.nexora.common.NexoraProperties;
@@ -8,9 +7,12 @@ import com.practice.nexora.common.NotFoundException;
 import com.practice.nexora.common.ServiceUnavailableException;
 import com.practice.nexora.user.UserAccount;
 import com.practice.nexora.user.UserAccountRepository;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,8 +20,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Supplier;
 
 @Service
 public class AdvisorService {
@@ -32,21 +41,23 @@ public class AdvisorService {
     static final String TOO_SLOW = "Nexa is taking too long to answer. Please try again in a moment.";
     static final String FAILED = "Nexa could not answer right now. Please try again in a moment.";
 
-
     private final AdvisorClient advisor;
     private final ProductService products;
     private final AdvisorMessageRepository messages;
     private final UserAccountRepository users;
     private final Duration timeout;
+    private final MeterRegistry meters;
 
     private final ExecutorService modelCalls = Executors.newVirtualThreadPerTaskExecutor();
 
-    public AdvisorService(AdvisorClient advisor, ProductService products, AdvisorMessageRepository messages, UserAccountRepository users, NexoraProperties properties) {
+    public AdvisorService(AdvisorClient advisor, ProductService products, AdvisorMessageRepository messages,
+                          UserAccountRepository users, NexoraProperties properties, MeterRegistry meters) {
         this.advisor = advisor;
         this.products = products;
         this.messages = messages;
         this.users = users;
         this.timeout = properties.advisor().timeout();
+        this.meters = meters;
     }
 
     public ChatResponse chat(String email, String message) {
@@ -79,19 +90,41 @@ public class AdvisorService {
     }
 
     private NexaAnswer askWithDeadline(List<ChatTurn> history, String message) {
-        CompletableFuture<NexaAnswer> call =
-                CompletableFuture.supplyAsync(() -> advisor.reply(history, message), modelCalls);
+        Map<String, String> logContext = MDC.getCopyOfContextMap();
+        CompletableFuture<NexaAnswer> call = CompletableFuture.supplyAsync(
+                () -> withLogContext(logContext, () -> advisor.reply(history, message)), modelCalls);
+
+        Timer.Sample sample = Timer.start(meters);
+        String outcome = "ok";
         try {
             return call.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
         } catch (TimeoutException tooSlow) {
+            outcome = "too_slow";
             log.warn("Nexa did not answer within {}", timeout);
             throw new ServiceUnavailableException(TOO_SLOW);
         } catch (ExecutionException failed) {
+            outcome = "failed";
             log.error("Nexa call failed", failed.getCause());
             throw new ServiceUnavailableException(FAILED);
         } catch (InterruptedException interrupted) {
+            outcome = "failed";
             Thread.currentThread().interrupt();
             throw new ServiceUnavailableException(FAILED);
+        } finally {
+
+            sample.stop(meters.timer("nexa.chat", "outcome", outcome));
+        }
+    }
+
+
+    private static <T> T withLogContext(Map<String, String> context, Supplier<T> work) {
+        if (context != null) {
+            MDC.setContextMap(context);
+        }
+        try {
+            return work.get();
+        } finally {
+            MDC.clear();
         }
     }
 
@@ -110,7 +143,6 @@ public class AdvisorService {
                 .limit(MAX_RECOMMENDATIONS)
                 .toList();
     }
-
 
     private Optional<ProductResponse> findRealProduct(String slug) {
         try {

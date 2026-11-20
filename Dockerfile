@@ -21,7 +21,11 @@ RUN cp target/nexora-store-*.jar app.jar \
 FROM eclipse-temurin:25-jre
 WORKDIR /app
 
-RUN groupadd --system nexora && useradd --system --gid nexora --no-create-home nexora
+# curl only for the Docker healthcheck; the package lists are deleted again to keep the image small
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --system nexora && useradd --system --gid nexora --no-create-home nexora
 
 COPY --from=build /workspace/extracted/dependencies/ ./
 COPY --from=build /workspace/extracted/spring-boot-loader/ ./
