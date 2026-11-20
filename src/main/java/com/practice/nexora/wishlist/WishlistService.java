@@ -49,16 +49,9 @@ public class WishlistService {
                 .orElseThrow(() -> new NotFoundException("Account not found"));
     }
     private Product findProduct(String rawSlug) {
-        return parseSlug(rawSlug)
+        return Slug.parse(rawSlug)
                 .flatMap(products::findBySlug)
                 .orElseThrow(() -> new NotFoundException("Product not found: " + rawSlug));
     }
 
-    private static Optional<Slug> parseSlug(String raw) {
-        try {
-            return Optional.of(new Slug(raw));
-        } catch (IllegalArgumentException invalid) {
-            return Optional.empty();
-        }
-    }
 }

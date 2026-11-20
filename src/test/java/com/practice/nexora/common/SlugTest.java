@@ -3,6 +3,7 @@ package com.practice.nexora.common;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,5 +49,17 @@ class SlugTest {
     void rejectsSlugsLongerThan80Characters() {
         assertThatThrownBy(() -> new Slug("a".repeat(81)))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void parseGivesASlugForValidText() {
+        assertThat(Slug.parse("voltix-air-13")).contains(new Slug("voltix-air-13"));
+    }
+
+    @ParameterizedTest(name = "parse(\"{0}\") is empty")
+    @NullAndEmptySource
+    @ValueSource(strings = {"Voltix Air", "-air", "air--13", "ΑΒΓ"})
+    void parseGivesNothingForInvalidText(String raw) {
+        assertThat(Slug.parse(raw)).isEmpty();
     }
 }
