@@ -1,6 +1,7 @@
 import { fetchBrands, fetchProducts } from './api.js';
 import { CATEGORIES, categoryIcon, categoryLabel, el, formatPrice, showMessage } from './ui.js';
 import { heartButton, wishlistSlugs } from './wishlist.js';
+import { compareButton, showCompareTray } from './compare.js';
 
 const PAGE_SIZE = 12;
 const FILTER_KEYS = ['category', 'brand', 'minPrice', 'maxPrice', 'q'];
@@ -14,6 +15,7 @@ const grid = document.querySelector('#grid');
 const status = document.querySelector('#status');
 const pager = document.querySelector('#pager');
 
+showCompareTray();
 fillCategories();
 fillFormFromUrl();
 form.addEventListener('submit', applyFilters);
@@ -68,7 +70,7 @@ async function loadProducts() {
     }
 
     try {
-
+        // Two requests at the same time: the page of products and my wishlist
         const [result, saved] = await Promise.all([fetchProducts(query), wishlistSlugs()]);
         renderGrid(result.content, saved);
         renderStatus(result);
@@ -105,7 +107,7 @@ function productCard(product, isSaved) {
     );
 
     card.append(thumb, body);
-    wrapper.append(card, heartButton(product.slug, isSaved));
+    wrapper.append(card, heartButton(product.slug, isSaved), compareButton(product));
     return wrapper;
 }
 

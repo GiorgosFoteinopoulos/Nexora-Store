@@ -1,6 +1,7 @@
 import { fetchProduct } from './api.js';
 import { categoryIcon, categoryLabel, el, formatPrice, showMessage } from './ui.js';
 import { heartButton, wishlistSlugs } from './wishlist.js';
+import { compareButton, showCompareTray } from './compare.js';
 
 const view = document.querySelector('#product');
 const slug = new URLSearchParams(location.search).get('slug');
@@ -23,6 +24,8 @@ const SPEC_LABELS = {
     gps: ['GPS', yesNo],
     fits: ['Works with', (value) => value.map(categoryLabel).join(', ')],
 };
+
+showCompareTray();
 
 if (!slug) {
     showMessage(view, 'No product chosen. Go back to the catalog and pick one.', 'error');
@@ -61,8 +64,13 @@ function render(product, isSaved) {
         el('p', product.available ? 'stock stock-in' : 'stock stock-out',
             product.available ? 'In stock' : 'Sold out'),
         el('p', 'detail-description', product.description),
-        heartButton(product.slug, isSaved, { withText: true }),
     );
+    const actions = el('div', 'detail-actions');
+    actions.append(
+        heartButton(product.slug, isSaved, { withText: true }),
+        compareButton(product, { withText: true }),
+    );
+    info.append(actions);
 
     const top = el('div', 'detail');
     top.append(thumb, info);

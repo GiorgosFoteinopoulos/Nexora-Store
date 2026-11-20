@@ -60,6 +60,7 @@ async function request(method, path, { params = {}, body, auth = false } = {}) {
 export const fetchBrands = () => request('GET', '/brands');
 export const fetchProducts = (params) => request('GET', '/products', { params });
 export const fetchProduct = (slug) => request('GET', `/products/${encodeURIComponent(slug)}`);
+export const compareProducts = (slugs) => request('GET', '/products/compare', { params: { slugs: slugs.join(',') } });
 
 
 export const register = (email, password) => request('POST', '/auth/register', { body: { email, password } });

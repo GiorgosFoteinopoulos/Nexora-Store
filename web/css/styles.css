@@ -194,3 +194,38 @@ button:disabled { opacity: 0.6; cursor: wait; }
 @media (max-width: 760px) {
     .header-link { display: none; }
 }
+
+/* ---------- 10.5: compare ---------- */
+.badge-soldout { top: auto; bottom: 0.6rem; }
+.compare-toggle {
+    position: absolute; top: 0.6rem; right: 0.6rem; padding: 0.25rem 0.6rem; font-size: 0.8rem;
+    background: var(--surface); color: var(--accent); border-color: var(--line);
+}
+.compare-toggle:hover { background: var(--accent-soft); }
+.compare-toggle[aria-pressed="true"] { background: var(--accent); color: white; border-color: var(--accent); }
+.compare-toggle-text { position: static; padding: 0.55rem 1rem; font-size: 1rem; }
+.detail-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.4rem; }
+.detail-actions .heart-text { margin-top: 0; }
+
+.compare-tray {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; background: var(--surface);
+    border-top: 1px solid var(--line); box-shadow: 0 -6px 20px rgb(16 24 40 / 10%);
+}
+.tray-inner { display: flex; align-items: center; gap: 0.8rem; padding-block: 0.8rem; flex-wrap: wrap; }
+.tray-label { font-weight: 600; }
+.tray-items { display: flex; flex-wrap: wrap; gap: 0.4rem; list-style: none; margin: 0; padding: 0; flex: 1; }
+.tray-chip { display: flex; align-items: center; gap: 0.3rem; padding: 0.25rem 0.3rem 0.25rem 0.7rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent-dark); font-size: 0.9rem; }
+.tray-remove { padding: 0 0.4rem; border: 0; background: transparent; color: var(--accent-dark); font-size: 1.1rem; line-height: 1; }
+.tray-remove:hover { background: transparent; color: var(--danger); }
+body.has-tray { padding-bottom: 5rem; }
+body.has-tray .toasts { bottom: 5.5rem; }
+
+.compare-page { padding-block: 1.5rem; display: grid; gap: 1.2rem; align-content: start; }
+.compare-page h1 { margin: 0 0 1rem; }
+.table-scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.4rem 1rem; }
+.compare-table th, .compare-table td { min-width: 9rem; vertical-align: top; }
+.compare-table thead th { padding-block: 0.9rem; }
+.compare-table .col-cheapest { background: #ecfdf3; }
+.badge-cheapest { position: static; display: inline-block; margin-left: 0.4rem; background: var(--ok); color: white; }
+.row-same td { color: var(--muted); }
+.compare-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; }
