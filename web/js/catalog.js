@@ -1,8 +1,10 @@
-import { fetchBrands, fetchProducts }  from './api.js';
-import { CATEGORIES, categoryIcon, categoryLabel, el, formatPrice, showMessage } from "./ui.js";
+import { fetchBrands, fetchProducts } from './api.js';
+import { CATEGORIES, categoryIcon, categoryLabel, el, formatPrice, showMessage } from './ui.js';
+import { heartButton, wishlistSlugs } from './wishlist.js';
 
 const PAGE_SIZE = 12;
 const FILTER_KEYS = ['category', 'brand', 'minPrice', 'maxPrice', 'q'];
+
 
 const params = new URLSearchParams(location.search);
 const page = Math.max(0, Number.parseInt(params.get('page') ?? '0', 10) || 0);
@@ -46,7 +48,7 @@ async function loadBrands() {
     }
 }
 
-function applyFilters() {
+function applyFilters(event) {
     event.preventDefault();
     const next = new URLSearchParams();
     for (const key of FILTER_KEYS) {
@@ -59,15 +61,16 @@ function applyFilters() {
 }
 
 async function loadProducts() {
-    status.textContent = 'Loading products...';
+    status.textContent = 'Loading products…';
     const query = { page, size: PAGE_SIZE };
     for (const key of FILTER_KEYS) {
         query[key] = params.get(key);
     }
 
     try {
-        const result = await fetchProducts(query);
-        renderGrid(result.content);
+
+        const [result, saved] = await Promise.all([fetchProducts(query), wishlistSlugs()]);
+        renderGrid(result.content, saved);
         renderStatus(result);
         renderPager(result);
     } catch (error) {
@@ -76,29 +79,34 @@ async function loadProducts() {
     }
 }
 
-function renderGrid(products) {
-    grid.replaceChildren(...products.map(productCard));
+function renderGrid(products, saved) {
+    grid.replaceChildren(...products.map((product) => productCard(product, saved.has(product.slug))));
 }
 
-function productCard(product) {
+function productCard(product, isSaved) {
+
+    const wrapper = el('article', 'card-wrap');
+
     const card = el('a', 'card');
     card.href = `product.html?slug=${encodeURIComponent(product.slug)}`;
 
-    const thumb = el('div', 'card-thumb')
+    const thumb = el('div', 'card-thumb');
     thumb.append(categoryIcon(product.category));
     if (!product.available) {
         thumb.append(el('span', 'badge badge-soldout', 'Sold out'));
     }
+
     const body = el('div', 'card-body');
     body.append(
         el('p', 'card-meta', `${product.brand.name} · ${categoryLabel(product.category)}`),
         el('h3', 'card-title', product.name),
         el('p', 'card-summary', product.summary),
-        el('p', 'card-price', product.startingPrice ? `from ${formatPrice(product.startingPrice)}` : 'Price on request')
+        el('p', 'card-price', product.startingPrice ? `from ${formatPrice(product.startingPrice)}` : 'Price on request'),
     );
 
     card.append(thumb, body);
-    return card;
+    wrapper.append(card, heartButton(product.slug, isSaved));
+    return wrapper;
 }
 
 function renderStatus(result) {

@@ -1,3 +1,4 @@
+
 export const CATEGORIES = [
     { value: 'PHONE', label: 'Phones' },
     { value: 'LAPTOP', label: 'Laptops' },
@@ -12,18 +13,17 @@ export function categoryLabel(value) {
 
 const money = new Map();
 
+
 export function formatPrice(price) {
     if (!price) {
         return '';
     }
-    if (!price) {
-        return '';
-    }
     if (!money.has(price.currency)) {
-        money.set(price.currency, new Intl.NumberFormat('en-IE', { style: 'currency', currency: price.currency}));
+        money.set(price.currency, new Intl.NumberFormat('en-IE', { style: 'currency', currency: price.currency }));
     }
     return money.get(price.currency).format(Number(price.amount));
 }
+
 
 export function el(tag, className, text) {
     const node = document.createElement(tag);
@@ -35,6 +35,7 @@ export function el(tag, className, text) {
     }
     return node;
 }
+
 
 const ICONS = {
     PHONE: '<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>',
@@ -48,10 +49,30 @@ export function categoryIcon(category) {
     const wrapper = el('span', 'icon');
     wrapper.setAttribute('aria-hidden', 'true');
     wrapper.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-    stroke-linecap = "round" stroke-linejoin="round">${ICONS[category] ?? ''}</svg>`;
+        stroke-linecap="round" stroke-linejoin="round">${ICONS[category] ?? ''}</svg>`;
     return wrapper;
 }
 
 export function showMessage(container, text, kind = 'info') {
     container.replaceChildren(el('p', `message message-${kind}`, text));
+}
+
+const dateTime = new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short' });
+
+
+export function formatDateTime(isoText) {
+    return dateTime.format(new Date(isoText));
+}
+
+
+export function toast(text, kind = 'info') {
+    let stack = document.querySelector('.toasts');
+    if (!stack) {
+        stack = el('div', 'toasts');
+        stack.setAttribute('role', 'status');
+        document.body.append(stack);
+    }
+    const box = el('div', `toast toast-${kind}`, text);
+    stack.append(box);
+    setTimeout(() => box.remove(), 3500);
 }

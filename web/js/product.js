@@ -1,7 +1,12 @@
 import { fetchProduct } from './api.js';
 import { categoryIcon, categoryLabel, el, formatPrice, showMessage } from './ui.js';
+import { heartButton, wishlistSlugs } from './wishlist.js';
+
+const view = document.querySelector('#product');
+const slug = new URLSearchParams(location.search).get('slug');
 
 const yesNo = (value) => (value ? 'Yes' : 'No');
+
 
 const SPEC_LABELS = {
     screenInches: ['Screen', (value) => `${value}″`],
@@ -27,14 +32,15 @@ if (!slug) {
 
 async function load() {
     try {
-        render(await fetchProduct(slug));
+        const [product, saved] = await Promise.all([fetchProduct(slug), wishlistSlugs()]);
+        render(product, saved.has(product.slug));
     } catch (error) {
         const text = error.status === 404 ? 'This product does not exist (any more).' : error.message;
         showMessage(view, text, 'error');
     }
 }
 
-function render(product) {
+function render(product, isSaved) {
     document.title = `${product.name} · Nexora Store`;
 
     const crumbs = el('nav', 'crumbs');
@@ -44,7 +50,7 @@ function render(product) {
     category.href = `index.html?category=${encodeURIComponent(product.category)}`;
     crumbs.append(home, el('span', null, ' › '), category);
 
-    const thumb = el('div', 'detail-info');
+    const thumb = el('div', 'detail-thumb');
     thumb.append(categoryIcon(product.category));
 
     const info = el('div', 'detail-info');
@@ -55,7 +61,9 @@ function render(product) {
         el('p', product.available ? 'stock stock-in' : 'stock stock-out',
             product.available ? 'In stock' : 'Sold out'),
         el('p', 'detail-description', product.description),
+        heartButton(product.slug, isSaved, { withText: true }),
     );
+
     const top = el('div', 'detail');
     top.append(thumb, info);
 
