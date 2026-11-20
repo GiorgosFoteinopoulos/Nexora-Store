@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Compare · Nexora Store</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="css/styles.css">
+    <script type="module" src="js/header.js"></script>
+    <script type="module" src="js/compare-page.js"></script>
+</head>
+<body>
+<header class="site-header">
+    <div class="container header-inner">
+        <a href="index.html" class="brand">
+            <span class="brand-mark">N</span>
+            <span class="brand-text">Nexora Store</span>
+        </a>
+        <form class="search" action="index.html" method="get" role="search">
+            <input name="q" type="search" placeholder="Search phones, laptops, watches…"
+                   autocomplete="off" aria-label="Search products">
+        </form>
+        <nav id="account" class="account"></nav>
+    </div>
+</header>
+
+<main class="container compare-page">
+    <section id="comparison">
+        <p class="status">Loading the comparison…</p>
+    </section>
+    <div class="compare-actions">
+        <a class="button button-secondary" href="index.html">← Back to the catalog</a>
+        <button id="clear-compare" type="button" class="button-secondary">Clear and start over</button>
+    </div>
+</main>
+
+<footer class="site-footer">
+    <div class="container">Nexora Technologies is a fictional company. Demo project.</div>
+</footer>
+</body>
+</html>

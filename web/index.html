@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Nexora Store</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="css/styles.css">
+    <script type="module" src="js/header.js"></script>
+    <script type="module" src="js/catalog.js"></script>
+</head>
+<body>
+<header class="site-header">
+    <div class="container header-inner">
+        <a href="index.html" class="brand">
+            <span class="brand-mark">N</span>
+            <span class="brand-text">Nexora Store</span>
+        </a>
+        <form class="search" action="index.html" method="get" role="search">
+            <input id="q" name="q" type="search" placeholder="Search phones, laptops, watches…"
+                   autocomplete="off" aria-label="Search products">
+        </form>
+        <nav id="account" class="account"></nav>
+    </div>
+</header>
+
+<main class="container layout">
+    <aside class="filters">
+        <form id="filters">
+            <h2>Filters</h2>
+            <label>Category
+                <select name="category">
+                    <option value="">All categories</option>
+                </select>
+            </label>
+            <label>Brand
+                <select name="brand">
+                    <option value="">All brands</option>
+                </select>
+            </label>
+            <fieldset class="price">
+                <legend>Price (€)</legend>
+                <input name="minPrice" type="number" min="0" step="1" placeholder="Min" aria-label="Minimum price">
+                <input name="maxPrice" type="number" min="0" step="1" placeholder="Max" aria-label="Maximum price">
+            </fieldset>
+            <label class="check">
+                <input name="meaning" type="checkbox" value="1">
+                Search by meaning (AI)
+            </label>
+            <input name="q" type="hidden">
+            <div class="filter-actions">
+                <button type="submit">Apply</button>
+                <a class="button button-secondary" href="index.html">Clear</a>
+            </div>
+        </form>
+    </aside>
+
+    <section>
+        <p id="status" class="status" aria-live="polite"></p>
+        <div id="grid" class="grid"></div>
+        <nav id="pager" class="pager" hidden>
+            <a id="prev" class="button button-secondary">← Previous</a>
+            <span id="page-info"></span>
+            <a id="next" class="button button-secondary">Next →</a>
+        </nav>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <div class="container">Nexora Technologies is a fictional company. Demo project.</div>
+</footer>
+</body>
+</html>
