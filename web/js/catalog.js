@@ -1,4 +1,4 @@
-import { fetchBrands, fetchProducts } from './api.js';
+import { fetchBrands, fetchProducts, searchByMeaning } from './api.js';
 import { CATEGORIES, categoryIcon, categoryLabel, el, formatPrice, showMessage } from './ui.js';
 import { heartButton, wishlistSlugs } from './wishlist.js';
 import { compareButton, showCompareTray } from './compare.js';
@@ -36,6 +36,7 @@ function fillFormFromUrl() {
         }
     }
     document.querySelector('#q').value = params.get('q') ?? '';
+    form.elements.meaning.checked = params.get('meaning') === '1';
 }
 
 async function loadBrands() {
@@ -44,7 +45,7 @@ async function loadBrands() {
         for (const brand of await fetchBrands()) {
             select.append(new Option(brand.name, brand.slug));
         }
-        select.value = params.get('brand') ?? '';
+        select.value = params.get('brand') ?? ''; n
     } catch {
         select.disabled = true;
     }
@@ -59,10 +60,17 @@ function applyFilters(event) {
             next.set(key, value);
         }
     }
+    if (form.elements.meaning.checked) {
+        next.set('meaning', '1');
+    }
     location.search = next.toString();
 }
 
 async function loadProducts() {
+    if (params.get('meaning') === '1' && params.get('q')) {
+        loadByMeaning();
+        return;
+    }
     status.textContent = 'Loading products…';
     const query = { page, size: PAGE_SIZE };
     for (const key of FILTER_KEYS) {
@@ -70,7 +78,6 @@ async function loadProducts() {
     }
 
     try {
-        // Two requests at the same time: the page of products and my wishlist
         const [result, saved] = await Promise.all([fetchProducts(query), wishlistSlugs()]);
         renderGrid(result.content, saved);
         renderStatus(result);
@@ -79,6 +86,46 @@ async function loadProducts() {
         status.textContent = '';
         showMessage(grid, error.message, 'error');
     }
+}
+
+async function loadByMeaning() {
+    status.textContent = 'Searching by meaning…';
+    pager.hidden = true; // semantic search returns the best matches, not pages
+    try {
+        const [result, saved] = await Promise.all([
+            searchByMeaning({
+                q: params.get('q'),
+                category: params.get('category'),
+                maxPrice: params.get('maxPrice'),
+                limit: 10,
+            }),
+            wishlistSlugs(),
+        ]);
+        const products = result.hits.map(fromHit);
+        renderGrid(products, saved);
+        if (products.length === 0) {
+            status.textContent = '';
+            showMessage(grid, 'Nothing found by meaning. Try other words, or untick "Search by meaning".');
+            return;
+        }
+        status.textContent = `Best ${products.length} matches for "${result.query}", most similar first`;
+    } catch (error) {
+        status.textContent = '';
+        showMessage(grid, error.message, 'error');
+    }
+}
+
+
+function fromHit(hit) {
+    return {
+        slug: hit.slug,
+        name: hit.name,
+        category: hit.category,
+        brand: { name: hit.brand },
+        startingPrice: hit.startingPrice === null ? null : { amount: String(hit.startingPrice), currency: 'EUR' },
+        available: hit.available,
+        summary: `${Math.round(hit.similarity * 100)}% match`,
+    };
 }
 
 function renderGrid(products, saved) {

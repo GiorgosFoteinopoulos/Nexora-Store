@@ -75,3 +75,8 @@ export const addToWishlist = (slug) => request('PUT', `/me/wishlist/${encodeURIC
 export const removeFromWishlist = (slug) => request('DELETE', `/me/wishlist/${encodeURIComponent(slug)}`, { auth: true });
 export const fetchNotifications = () => request('GET', '/me/notifications', { auth: true });
 export const markNotificationsRead = () => request('PUT', '/me/notifications/read', { auth: true });
+
+export const chatWithNexa = (message) => request('POST', '/advisor/chat', { body: { message }, auth: true });
+export const fetchConversation = () => request('GET', '/advisor/conversation', { auth: true });
+export const forgetConversation = () => request('DELETE', '/advisor/conversation', { auth: true });
+export const searchByMeaning = (params) => request('GET', '/products/semantic', { params });
