@@ -30,19 +30,12 @@ public class ProductService {
 
     @Cacheable("products")
     public ProductResponse getProduct(String slug) {
-        return parse(slug)
+        return Slug.parse(slug)
                 .flatMap(products::findBySlug)
                 .map(ProductResponse::from)
                 .orElseThrow(() -> new NotFoundException("No product with slug '%s'".formatted(slug)));
     }
 
-    private static Optional<Slug> parse(String value) {
-        try {
-            return Optional.of(new Slug(value));
-        } catch (IllegalArgumentException invalid) {
-            return Optional.empty();
-        }
-    }
 
     public PageResponse<ProductSummaryResponse> listProducts(ProductFilter filter, Pageable requested) {
         Pageable pageable = PageRequest.of(requested.getPageNumber(), requested.getPageSize(), CATALOG_ORDER);

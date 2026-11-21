@@ -30,7 +30,7 @@ public class ComparisonService {
         }
 
         List<Slug> validSlugs = rawSlugs.stream()
-                .map(ComparisonService::parseSlug)
+                .map(Slug::parse)
                 .flatMap(Optional::stream)
                 .toList();
         Map<Slug, Product> bySlug = products.findBySlugIn(validSlugs).stream()
@@ -38,7 +38,7 @@ public class ComparisonService {
 
 
         List<String> missing = rawSlugs.stream()
-                .filter(raw -> parseSlug(raw).map(slug -> !bySlug.containsKey(slug)).orElse(true))
+                .filter(raw -> Slug.parse(raw).map(slug -> !bySlug.containsKey(slug)).orElse(true))
                 .toList();
         if (!missing.isEmpty()) {
             throw new NotFoundException("Products not found: " + String.join(", ", missing));
@@ -46,7 +46,7 @@ public class ComparisonService {
 
 
         List<Product> inRequestedOrder = rawSlugs.stream()
-                .map(raw -> bySlug.get(parseSlug(raw).orElseThrow()))
+                .map(raw -> bySlug.get(Slug.parse(raw).orElseThrow()))
                 .toList();
 
 
@@ -58,11 +58,5 @@ public class ComparisonService {
     }
 
   
-    private static Optional<Slug> parseSlug(String raw) {
-        try {
-            return Optional.of(new Slug(raw));
-        } catch (IllegalArgumentException invalid) {
-            return Optional.empty();
-        }
-    }
+
 }

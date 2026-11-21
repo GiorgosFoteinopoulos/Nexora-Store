@@ -25,7 +25,7 @@ public class AdminProductService {
     @PreAuthorize("hasRole('ADMIN')")
     @CacheEvict(cacheNames = "products", allEntries = true)
     public void changeDescription(String rawSlug, String description) {
-        Product product = parseSlug(rawSlug)
+        Product product = Slug.parse(rawSlug)
                 .flatMap(products::findBySlug)
                 .orElseThrow(() -> new NotFoundException("Product not found: " + rawSlug));
 
@@ -33,11 +33,4 @@ public class AdminProductService {
         events.publishEvent(new ProductTextChanged(product.getId()));
     }
 
-    private static Optional<Slug> parseSlug(String raw) {
-        try {
-            return Optional.of(new Slug(raw));
-        } catch (IllegalArgumentException invalid) {
-            return Optional.empty();
-        }
-    }
 }

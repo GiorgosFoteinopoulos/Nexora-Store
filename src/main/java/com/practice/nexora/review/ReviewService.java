@@ -71,18 +71,11 @@ public class ReviewService {
     }
 
     private Product findProduct(String rawSlug) {
-        return parseSlug(rawSlug)
+        return Slug.parse(rawSlug)
                 .flatMap(products::findBySlug)
                 .orElseThrow(() -> new NotFoundException("Product not found: " + rawSlug));
     }
 
-    private static Optional<Slug> parseSlug(String raw) {
-        try {
-            return Optional.of(new Slug(raw));
-        } catch (IllegalArgumentException invalid) {
-            return Optional.empty();
-        }
-    }
 
     private static Double oneDecimal(Double value) {
         return value == null ? null : Math.round(value * 10) / 10.0;

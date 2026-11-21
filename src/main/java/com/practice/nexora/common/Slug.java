@@ -3,6 +3,7 @@ package com.practice.nexora.common;
 import java.text.Normalizer;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 public record Slug (String value) {
@@ -38,5 +39,16 @@ public record Slug (String value) {
     @Override
     public String toString() {
         return value;
+    }
+
+    public static Optional<Slug> parse(String raw) {
+        if (raw == null) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.of(new Slug(raw));
+        } catch (IllegalArgumentException invalid) {
+            return Optional.empty();
+        }
     }
 }
