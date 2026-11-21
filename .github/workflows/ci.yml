@@ -31,6 +31,21 @@ jobs:
       - name: Build and run tests
         run: ./mvnw -B verify
 
+      - name: Coverage summary
+        run: |
+          echo "### Test coverage (JaCoCo)" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Counter | Covered |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          awk -F, 'NR > 1 { lm += $8; lc += $9; bm += $6; bc += $7 }
+            END { printf "| Lines | %.1f%% |\n| Branches | %.1f%% |\n", 100 * lc / (lm + lc), 100 * bc / (bm + bc) }' \
+            target/site/jacoco/jacoco.csv >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: target/site/jacoco/
+
       - name: Build the Docker image
         run: docker build -t nexora-store:ci .
 
